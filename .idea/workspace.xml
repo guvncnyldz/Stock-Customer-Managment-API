@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f51092cf-ef1d-463a-a1fd-b9dc4e5ca34d" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1nbbZ2l3NslLPo9L5i7ceuOt3Iw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="javascript.nodejs.core.library.configured.version" value="12.18.3" />
+    <property name="javascript.nodejs.core.library.typings.version" value="12.19.15" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/routes/company.js" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path" value="node" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/routes/company.js" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\guvnc\Desktop\Projects\ezrak-api\utils" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\guvnc\Desktop\Projects\ezrak-api\public\images" />
+      <recent name="C:\Users\guvnc\Desktop\Projects\ezrak-api" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f51092cf-ef1d-463a-a1fd-b9dc4e5ca34d" name="Default Changelist" comment="" />
+      <created>1611661789725</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1611661789725</updated>
+      <workItem from="1611661790874" duration="704000" />
+      <workItem from="1611726927147" duration="594000" />
+      <workItem from="1611840451280" duration="12000" />
+      <workItem from="1611908259090" duration="13436000" />
+      <workItem from="1612037156653" duration="26000" />
+      <workItem from="1612104464739" duration="11709000" />
+      <workItem from="1612284058492" duration="12422000" />
+      <workItem from="1612338806462" duration="8774000" />
+      <workItem from="1612424270602" duration="17313000" />
+      <workItem from="1612551035761" duration="3607000" />
+      <workItem from="1612556625259" duration="689000" />
+      <workItem from="1612652473378" duration="1083000" />
+      <workItem from="1612717373939" duration="1100000" />
+      <workItem from="1613164855695" duration="595000" />
+      <workItem from="1613250490678" duration="440000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="361" y="71" key="#Deployment" timestamp="1612037181126">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="361" y="71" key="#Deployment/0.0.1536.824@0.0.1536.824" timestamp="1612037181126" />
+    <state x="491" y="214" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1612106290523">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="491" y="214" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1612106290523" />
+    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog" timestamp="1612284595358">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1612284595358" />
+    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1612284568764">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1612284568764" />
+    <state x="478" y="145" width="579" height="534" key="find.popup" timestamp="1612427494366">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="478" y="145" width="579" height="534" key="find.popup/0.0.1536.824/-1920.-81.1920.1040@0.0.1536.824" timestamp="1612427494366" />
+    <state x="425" y="187" key="run.anything.popup" timestamp="1612289140413">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="425" y="187" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1612289140413" />
+  </component>
+</project>
