@@ -40,7 +40,7 @@ router.post('/login', (req, res) => {
 })
 
 router.post('/add', (req, res) => {
-    const {company_id, username, password, name_surname, photo, authority_id, log_profile_id, log_company_id} = req.body
+    const {company_id, username, password, name_surname, photo, authority_id, log_profile_id} = req.body
     let sql = 'select id from profile where username = ?'
 
     let photoPath = "";
@@ -58,36 +58,44 @@ router.post('/add', (req, res) => {
 
             }
 
-            if (result.length > 0) {
-                res.json({
-                    code: 409,
-                    message: 'Bu kullanıcı adı kullanılmakta'
-                })
-            } else {
+            try {
+                if (result.length > 0) {
+                    res.json({
+                        code: 409,
+                        message: 'Bu kullanıcı adı kullanılmakta'
+                    })
+                } else {
 
 
-                sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path) VALUE (?,?,?,?,?,?)'
+                    sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path) VALUE (?,?,?,?,?,?)'
 
-                if (photo != "") {
-                    photoPath = '/images/profile/' + username + Date.now() + '.png';
-                    base64.decodeBase64(photo, photoPath)
-                }
-
-                db.query(sql, [company_id, authority_id, username, password, name_surname, photoPath], (err) => {
-                    if (err) {
-                        res.json({
-                            code: 500,
-                            message: err
-                        })
-
-                        throw err
+                    if (photo != "") {
+                        photoPath = '/images/profile/' + username + Date.now() + '.png';
+                        base64.decodeBase64(photo, photoPath)
                     }
 
-                    res.json({
-                        code: 200,
-                        message: "Profil oluşturuldu",
+                    db.query(sql, [company_id, authority_id, username, password, name_surname, photoPath], (err) => {
+                        if (err) {
+                            res.json({
+                                code: 500,
+                                message: err
+                            })
+
+                            throw err
+                        }
+
+                        res.json({
+                            code: 200,
+                            message: "Profil oluşturuldu",
+                        })
                     })
+                }
+            } catch (error) {
+                res.json({
+                    code: 500,
+                    message: error.toString()
                 })
+                throw error
             }
         })
     } catch (error) {
@@ -99,7 +107,7 @@ router.post('/add', (req, res) => {
     }
 })
 
-router.get('/info', (req, res) => {
+router.get('/', (req, res) => {
     const {profile_id} = req.query;
 
     let sql = 'select * from profile where id = ? and is_visible = true'
@@ -139,7 +147,7 @@ router.get('/info', (req, res) => {
     }
 })
 
-router.put('/info', ((req, res) => {
+router.put('/', ((req, res) => {
     let {username, password, name_surname, photo, authority_id, log_profile_id, log_company_id} = req.body
     const {profile_id} = req.query
 

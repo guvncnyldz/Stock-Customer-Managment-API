@@ -20,54 +20,28 @@ router.post('/add', (req, res) => {
                 throw err
 
             }
-
-            if (result.length > 0) {
-                res.json({
-                    code: 409,
-                    message: 'Bu kullanıcı adı kullanılmakta'
-                })
-            } else {
-                sql = 'call createCompany(?,?,?,?,?,?,?,?,?)'
-
-                let tel1 = telephones.replace(telephones[0], '');
-                let tel2 = tel1.replace(tel1[tel1.length - 1], '');
-                let finalTels = JSON.parse(tel2)
-
-                if (photo != "") {
-                    photoPath = '/images/profile/' + username + Date.now() + '.png';
-                    base64.decodeBase64(photo, photoPath)
-                }
-
-                let startDate = new Date(subs_start_date)
-                let endDate = new Date(subs_start_date);
-                endDate.setMonth(endDate.getMonth() + Number(subs_period))
-
-                db.query(sql, [company_name, company_mail, startDate, endDate, username, password, name_surname, photoPath, authority_id], (err, results) => {
-                    if (err) {
-                        res.json({
-                            code: 500,
-                            message: err
-                        })
-
-                        throw err
-
-                    }
-                    row = results[0][0];
-
-                    let company_id = row.company_id;
-
-                    sql = 'INSERT into telephone_no (company_id,tel_no) values ?'
-                    let values = []
-
-                    finalTels.forEach(finalTel => {
-                        let array = []
-                        array.push(company_id);
-                        array.push(finalTel);
-
-                        values.push(array)
+            try {
+                if (result.length > 0) {
+                    res.json({
+                        code: 409,
+                        message: 'Bu kullanıcı adı kullanılmakta'
                     })
+                } else {
+                    sql = 'call createCompany(?,?,?,?,?,?,?,?,?)'
 
-                    db.query(sql, [values], (err) => {
+                    tel1 = telephones.replace(/"/g, '');
+                    let finalTels = JSON.parse(tel1)
+
+                    if (photo != "") {
+                        photoPath = '/images/profile/' + username + Date.now() + '.png';
+                        base64.decodeBase64(photo, photoPath)
+                    }
+
+                    let startDate = new Date(subs_start_date)
+                    let endDate = new Date(subs_start_date);
+                    endDate.setMonth(endDate.getMonth() + Number(subs_period))
+
+                    db.query(sql, [company_name, company_mail, startDate, endDate, username, password, name_surname, photoPath, authority_id], (err, results) => {
                         if (err) {
                             res.json({
                                 code: 500,
@@ -75,7 +49,24 @@ router.post('/add', (req, res) => {
                             })
 
                             throw err
+
                         }
+                        row = results[0][0];
+                        console.log(row)
+                        let company_id = row.company_id;
+
+                        sql = 'INSERT into telephone_no (company_id,tel_no) values ?'
+                        let values = []
+
+                        finalTels.forEach(finalTel => {
+                            let array = []
+                            array.push(company_id);
+                            array.push(finalTel);
+
+                            values.push(array)
+                        })
+
+                        db.query(sql, [values])
 
                         res.json({
                             code: 200,
@@ -83,8 +74,16 @@ router.post('/add', (req, res) => {
                             data: row
                         })
                     })
-                })
+
+                }
             }
+            catch (error) {
+                    res.json({
+                        code: 500,
+                        message: error.toString()
+                    })
+                    throw error
+                }
         })
     } catch (error) {
         res.json({
@@ -100,9 +99,8 @@ router.post('/addPhone', (req, res) => {
     let sql = 'INSERT into telephone_no (company_id,tel_no) values ?'
 
     try {
-        let tel1 = telephones.replace(telephones[0], '');
-        let tel2 = tel1.replace(tel1[tel1.length - 1], '');
-        let finalTels = JSON.parse(tel2)
+        tel1 = telephones.replace(/"/g, '');
+        let finalTels = JSON.parse(tel1)
 
         let values = []
 
@@ -138,8 +136,8 @@ router.post('/addPhone', (req, res) => {
     }
 })
 
-router.put('/info', (req, res) => {
-    let {company_name, company_mail, subs_start_date, subs_period} = req.body;
+router.put('/', (req, res) => {
+    let {company_name, company_mail, subs_start_date, subs_period,log_profile_id,log_company_id} = req.body;
     const {company_id} = req.query;
 
     if (!company_name)
@@ -201,7 +199,7 @@ router.put('/info', (req, res) => {
     }
 })
 
-router.get('/info', (req, res) => {
+router.get('/', (req, res) => {
     const {company_id} = req.query;
 
     let sql = 'select * from company where id = ? and is_visible = true'
@@ -241,7 +239,7 @@ router.get('/info', (req, res) => {
     }
 })
 
-router.get('/phoneInfo', (req, res) => {
+router.get('/phone', (req, res) => {
     const {company_id} = req.query;
 
     let sql = 'select * from telephone_no where company_id = ? and is_visible = true'
@@ -280,7 +278,7 @@ router.get('/phoneInfo', (req, res) => {
     }
 })
 
-router.get('/profilesInfo', (req, res) => {
+router.get('/profiles', (req, res) => {
     const {company_id} = req.query;
 
     let sql = 'SELECT * FROM profile where company_id = ? and is_visible = true'
@@ -319,7 +317,7 @@ router.get('/profilesInfo', (req, res) => {
     }
 })
 
-router.put('/phoneInfo', (req, res) => {
+router.put('/phone', (req, res) => {
     const {phone_id} = req.query;
     let {telephone,log_profile_id,log_company_id} = req.body;
 
@@ -329,7 +327,6 @@ router.put('/phoneInfo', (req, res) => {
     try {
 
         let sql = `update telephone_no set tel_no= case when '${telephone}'= '' or '${telephone}' is null then tel_no else '${telephone}' end where id = ?`
-
 
         db.query(sql, phone_id, (err, results) => {
             if (err) {
@@ -364,7 +361,8 @@ router.put('/phoneInfo', (req, res) => {
 })
 
 router.delete('/phone', (req, res) => {
-    const {phone_id,log_profile_id,log_company_id} = req.query;
+    const {log_profile_id,log_company_id} = req.body
+    const {phone_id} = req.query
 
     let sql = 'update telephone_no set is_visible=false where id = ?'
 

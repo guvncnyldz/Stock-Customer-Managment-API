@@ -10,6 +10,7 @@ var companyRouter = require('./routes/company');
 var profileRouter = require('./routes/profile');
 var customerRouter = require('./routes/customer');
 var deviceRouter = require('./routes/device');
+var filterRouter = require('./routes/filter');
 
 var app = express();
 
@@ -22,5 +23,6 @@ app.use('/company', companyRouter);
 app.use('/profile', profileRouter);
 app.use('/customer', customerRouter);
 app.use('/device', deviceRouter);
+app.use('/filter', filterRouter);
 
 module.exports = app;
