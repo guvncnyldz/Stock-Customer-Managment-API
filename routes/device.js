@@ -79,10 +79,7 @@ router.post('/addFilter', (req, res) => {
             values.push(array)
         })
 
-        console.log(values)
-
-        db.query(sql, [values],(err,result) =>
-        {
+        db.query(sql, [values], (err, result) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -108,12 +105,12 @@ router.post('/addFilter', (req, res) => {
 
 router.delete('/filter', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
-    const {filter_id} = req.query
+    const {device_filter_id} = req.query
 
     let sql = 'delete from device_filter where id = ?'
 
     try {
-        db.query(sql, [filter_id], (err, results) => {
+        db.query(sql, [device_filter_id], (err, results) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -184,7 +181,7 @@ router.delete('/', (req, res) => {
     }
 })
 
-router.put('/', ((req, res) => {
+router.put('/', (req, res) => {
     let {model, description, warranty_period, quantity, purchase_price, sale_price, photo, is_system_open, log_profile_id, log_company_id} = req.body
     const {device_id} = req.query
 
@@ -253,6 +250,44 @@ router.put('/', ((req, res) => {
         })
         throw error
     }
-}))
+})
 
+router.get('/', (req, res) => {
+    const {company_id} = req.query
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'model\',d.model,\'description\',d.description,\'is_system_open\',d.is_system_open,\'photo_path\',d.photo_path,\'purchase_price\',d.purchase_price,\'sale_price\',d.sale_price,\'quantitiy\',d.quantity,\'warranty_period\',d.warranty_period ,\'filters\',(select JSON_ARRAYAGG(JSON_OBJECT(\'device_filter_id\',df.id,\'filter_id\',f.id,\'name\',f.name,\'description\',f.description)) filters from device_filter df left join filter f on df.filter_id = f.id where device_id = d.id))) as devices from device d where is_visible = 1 and company_id = 1'
+
+    try {
+        db.query(sql, [company_id], (err, result) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+            }
+
+            if (result.length > 0) {
+                res.json({
+                    code: 200,
+                    message: 'Cihaz getirildi',
+                    data: JSON.parse(result[0].devices)
+
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Cihaz bulunamadı',
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+
+        throw error
+    }
+})
 module.exports = router

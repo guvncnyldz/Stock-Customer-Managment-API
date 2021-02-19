@@ -147,6 +147,47 @@ router.get('/', (req, res) => {
     }
 })
 
+router.delete('/', (req, res) => {
+    const {profile_id} = req.query;
+
+    let sql = 'update profile set is_visible = false where id = ? and is_visible = true'
+
+    try {
+        db.query(sql, profile_id, (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+
+            }
+
+            console.log(results)
+
+            if (results.affectedRows > 0) {
+
+                res.json({
+                    code: 200,
+                    message: 'Kullanıcı silindi'
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Kullanıcı bulunamadı'
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
+
 router.put('/', ((req, res) => {
     let {username, password, name_surname, photo, authority_id, log_profile_id, log_company_id} = req.body
     const {profile_id} = req.query

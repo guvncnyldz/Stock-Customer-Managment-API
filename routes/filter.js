@@ -39,7 +39,7 @@ router.post('/add', (req, res) => {
     }
 })
 
-router.delete('/filter',(req,res) =>
+router.delete('/',(req,res) =>
 {
     const {log_profile_id,log_company_id} = req.body
     const {filter_id} = req.query
@@ -146,5 +146,44 @@ router.put('/', ((req, res) => {
         throw error
     }
 }))
+
+router.get('/', (req, res) => {
+    const {company_id} = req.query
+    const sql = 'select * from filter where is_visible = 1 and company_id = ?'
+
+    try {
+        db.query(sql, [company_id], (err, result) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+            }
+
+            if (result.length > 0) {
+                res.json({
+                    code: 200,
+                    message: 'Filtre getirildi',
+                    data: result
+
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Filtre bulunamadı',
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+
+        throw error
+    }
+})
 
 module.exports = router

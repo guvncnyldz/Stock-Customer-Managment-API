@@ -11,6 +11,8 @@ var profileRouter = require('./routes/profile');
 var customerRouter = require('./routes/customer');
 var deviceRouter = require('./routes/device');
 var filterRouter = require('./routes/filter');
+var maintenanceRouter = require('./routes/maintenance');
+var paymentRouter = require('./routes/payment');
 
 var app = express();
 
@@ -24,5 +26,7 @@ app.use('/profile', profileRouter);
 app.use('/customer', customerRouter);
 app.use('/device', deviceRouter);
 app.use('/filter', filterRouter);
+app.use('/maintenance', maintenanceRouter);
+app.use('/payment', paymentRouter);
 
 module.exports = app;

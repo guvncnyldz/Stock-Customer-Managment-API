@@ -364,7 +364,7 @@ router.delete('/phone', (req, res) => {
     const {log_profile_id,log_company_id} = req.body
     const {phone_id} = req.query
 
-    let sql = 'update telephone_no set is_visible=false where id = ?'
+    let sql = 'delete from telephone_no where id = ?'
 
     try {
         db.query(sql, phone_id, (err, results) => {
@@ -377,7 +377,7 @@ router.delete('/phone', (req, res) => {
                 throw err
             }
 
-            if (results.affectedRows > 0) {
+            if (results.d > 0) {
                 res.json({
                     code: 200,
                     message: 'Telefon silindi',
