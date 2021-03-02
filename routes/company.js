@@ -32,7 +32,7 @@ router.post('/add', (req, res) => {
                     tel1 = telephones.replace(/"/g, '');
                     let finalTels = JSON.parse(tel1)
 
-                    if (photo != "") {
+                    if (photo != null && photo != "") {
                         photoPath = '/images/profile/' + username + Date.now() + '.png';
                         base64.decodeBase64(photo, photoPath)
                     }

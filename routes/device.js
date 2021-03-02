@@ -10,7 +10,7 @@ router.post('/add', (req, res) => {
 
     try {
 
-        if (photo != "") {
+        if (photo != null && photo != "") {
             photoPath = '/images/device/' + model + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
@@ -205,7 +205,7 @@ router.put('/', (req, res) => {
     let photoPath = "";
 
     try {
-        if (photo) {
+        if (photo != null && photo != "") {
             photoPath = '/images/device/' + model + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
@@ -254,7 +254,7 @@ router.put('/', (req, res) => {
 
 router.get('/', (req, res) => {
     const {company_id} = req.query
-    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'model\',d.model,\'description\',d.description,\'is_system_open\',d.is_system_open,\'photo_path\',d.photo_path,\'purchase_price\',d.purchase_price,\'sale_price\',d.sale_price,\'quantitiy\',d.quantity,\'warranty_period\',d.warranty_period ,\'filters\',(select JSON_ARRAYAGG(JSON_OBJECT(\'device_filter_id\',df.id,\'filter_id\',f.id,\'name\',f.name,\'description\',f.description)) filters from device_filter df left join filter f on df.filter_id = f.id where device_id = d.id))) as devices from device d where is_visible = 1 and company_id = 1'
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'device_id\',d.id,\'model\',d.model,\'description\',d.description,\'is_system_open\',d.is_system_open,\'photo_path\',d.photo_path,\'purchase_price\',d.purchase_price,\'sale_price\',d.sale_price,\'quantitiy\',d.quantity,\'warranty_period\',d.warranty_period ,\'filters\',(select JSON_ARRAYAGG(JSON_OBJECT(\'device_filter_id\',df.id,\'filter_id\',f.id,\'name\',f.name,\'description\',f.description)) filters from device_filter df left join filter f on df.filter_id = f.id where device_id = d.id))) as devices from device d where is_visible = 1 and company_id = ?'
 
     try {
         db.query(sql, [company_id], (err, result) => {
@@ -266,12 +266,12 @@ router.get('/', (req, res) => {
 
                 throw err
             }
-
-            if (result.length > 0) {
+            row = JSON.parse(result[0].devices)
+            if (row != null) {
                 res.json({
                     code: 200,
                     message: 'Cihaz getirildi',
-                    data: JSON.parse(result[0].devices)
+                    data: row
 
                 })
             } else {

@@ -69,7 +69,7 @@ router.post('/add', (req, res) => {
 
                     sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path) VALUE (?,?,?,?,?,?)'
 
-                    if (photo != "") {
+                    if (photo != null && photo != "") {
                         photoPath = '/images/profile/' + username + Date.now() + '.png';
                         base64.decodeBase64(photo, photoPath)
                     }
@@ -204,7 +204,7 @@ router.put('/', ((req, res) => {
     let photoPath = "";
 
     try {
-        if (photo) {
+        if (photo != null && photo != "") {
             photoPath = '/images/profile/' + username + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
