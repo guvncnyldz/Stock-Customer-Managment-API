@@ -29,8 +29,7 @@ router.post('/add', (req, res) => {
                 } else {
                     sql = 'call createCompany(?,?,?,?,?,?,?,?,?)'
 
-                    tel1 = telephones.replace(/"/g, '');
-                    let finalTels = JSON.parse(tel1)
+                    let finalTels = JSON.parse(telephones)
 
                     if (photo != null && photo != "") {
                         photoPath = '/images/profile/' + username + Date.now() + '.png';
@@ -99,9 +98,7 @@ router.post('/addPhone', (req, res) => {
     let sql = 'INSERT into telephone_no (company_id,tel_no) values ?'
 
     try {
-        tel1 = telephones.replace(/"/g, '');
-        let finalTels = JSON.parse(tel1)
-
+        let finalTels = JSON.parse(telephones)
         let values = []
 
         finalTels.forEach(finalTel => {
@@ -377,7 +374,7 @@ router.delete('/phone', (req, res) => {
                 throw err
             }
 
-            if (results.d > 0) {
+            if (results.affectedRows > 0) {
                 res.json({
                     code: 200,
                     message: 'Telefon silindi',

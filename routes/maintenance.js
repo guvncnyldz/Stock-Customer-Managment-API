@@ -233,7 +233,19 @@ router.delete('/filter', (req, res) => {
 
 router.get('/byCustomer', (req, res) => {
     const {customer_id} = req.query
-    const sql = 'select m.* from maintenance m where customer_id = ? and is_visible = true'
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'id\', m.id, \'customer_device_id\', m.customer_device_id, \'maintenance_date\',\n' +
+        '                                 m.maintenance_date, \'maintenanced_date\', m.maintenanced_date, \'operation\', m.operation,\n' +
+        '                                 \'description\', m.description, \'create_date\', m.create_date,\n' +
+        '                                 \'filters\', (select JSON_ARRAYAGG(\n' +
+        '                                                            JSON_OBJECT(\'maintenance_filter_id\', mf.id, \'filter_id\',\n' +
+        '                                                                        f.id, \'name\', f.name, \'description\',\n' +
+        '                                                                        f.description))\n' +
+        '                                             from maintenance_filter mf\n' +
+        '                                                      left join filter f on mf.filter_id = f.id\n' +
+        '                                             where mf.maintenance_id = m.id))) as maintenance\n' +
+        'from maintenance m\n' +
+        'where customer_id = ?\n' +
+        '  and is_visible = true'
 
     try {
         db.query(sql, [customer_id], (err, results) => {
@@ -251,7 +263,7 @@ router.get('/byCustomer', (req, res) => {
                 res.json({
                     code: 200,
                     message: 'Bakımlar alındı',
-                    data: results
+                    data: JSON.parse(results[0].maintenance)
                 })
             } else {
                 res.json({
@@ -271,7 +283,19 @@ router.get('/byCustomer', (req, res) => {
 
 router.get('/byDevice', (req, res) => {
     const {customer_device_id} = req.query
-    const sql = 'select m.* from maintenance m where customer_device_id = ? and is_visible = true'
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'id\', m.id, \'customer_device_id\', m.customer_device_id, \'maintenance_date\',\n' +
+        '                                 m.maintenance_date, \'maintenanced_date\', m.maintenanced_date, \'operation\', m.operation,\n' +
+        '                                 \'description\', m.description, \'create_date\', m.create_date,\n' +
+        '                                 \'filters\', (select JSON_ARRAYAGG(\n' +
+        '                                                            JSON_OBJECT(\'maintenance_filter_id\', mf.id, \'filter_id\',\n' +
+        '                                                                        f.id, \'name\', f.name, \'description\',\n' +
+        '                                                                        f.description))\n' +
+        '                                             from maintenance_filter mf\n' +
+        '                                                      left join filter f on mf.filter_id = f.id\n' +
+        '                                             where mf.maintenance_id = m.id))) as maintenance\n' +
+        'from maintenance m\n' +
+        'where customer_device_id = ?\n' +
+        '  and is_visible = true'
 
     try {
         db.query(sql, [customer_device_id], (err, results) => {
@@ -289,7 +313,7 @@ router.get('/byDevice', (req, res) => {
                 res.json({
                     code: 200,
                     message: 'Bakımlar alındı',
-                    data: results
+                    data: JSON.parse(results[0].maintenance)
                 })
             } else {
                 res.json({

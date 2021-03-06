@@ -1,6 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
+router.post('/add', (req, res) => {
+    const {customer_id, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, log_profile_id, log_company_id} = req.body
+    const sql = 'call createPayment(?,?,?,?,?,?,?,?)'
+
+    try {
+        db.query(sql, [customer_id, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date], (err, results) => {
+
+            if (results.affectedRows > 0) {
+                res.json({
+                    code: 200,
+                    message: 'Ödeme eklendi',
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
+
 router.post('/partialPay', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
     const {partial_id} = req.query
