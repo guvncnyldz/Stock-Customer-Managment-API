@@ -1,8 +1,11 @@
+const customer = require('./customer')
+
 const express = require('express');
 const router = express.Router();
 
+
 router.post('/do', (req, res) => {
-    const {customer_device_id, operation, description, maintenance_date, customer_id, filters, log_profile_id, log_company_id} = req.body
+    const {customer_device_id, operation, description, maintenance_date, customer_id, maintained_filters, new_filters, old_filters, log_profile_id, log_company_id} = req.body
     let sql = "INSERT INTO maintenance(customer_id,operation,description,customer_device_id, maintenance_date, maintenanced_date) VALUES (?,?,?,?, COALESCE(?, '0000/00/00'), current_timestamp)"
 
     try {
@@ -14,24 +17,29 @@ router.post('/do', (req, res) => {
                 })
             }
 
-            let sql = 'INSERT into maintenance_filter (maintenance_id,filter_id) values ?'
+            let sql = 'INSERT into maintenance_filter (maintenance_id,filter_id,operation_id) values ?'
 
-            if (filters != "") {
-                filters1 = filters.replace(/"/g, '');
-                let finalFilters = JSON.parse(filters1)
+            let values = []
 
-                let values = []
-
-                finalFilters.forEach(filter => {
-                    let array = []
-                    array.push(result.insertId);
-                    array.push(filter);
-
-                    values.push(array)
-                })
-
-                db.query(sql, [values]);
+            if (maintained_filters != "" || maintained_filters != null) {
+                values = createFiltersArray(maintained_filters, result.insertId, 2, values)
             }
+
+            if (new_filters != "" || new_filters != null) {
+                values = createFiltersArray(new_filters, result.insertId, 1, values)
+                customer.addDeviceFilter(customer_device_id, new_filters, (err) => {
+                }, () => {
+                })
+            }
+
+            if (old_filters != "" || old_filters != null) {
+                values = createFiltersArray(old_filters, result.insertId, 0, values)
+                customer.deleteDeviceFilter(old_filters, (err) => {
+                }, (result) => {
+                })
+            }
+
+            db.query(sql, [values]);
 
             res.json({
                 code: 200,
@@ -47,6 +55,22 @@ router.post('/do', (req, res) => {
     }
 })
 
+function createFiltersArray(filters, id, operation_id, values) {
+    filters1 = filters.replace(/"/g, '');
+    let finalFilters = JSON.parse(filters1)
+
+    finalFilters.forEach(filter => {
+        let array = []
+        array.push(id);
+        array.push(filter);
+        array.push(operation_id);
+
+        values.push(array)
+    })
+
+    return values
+}
+
 router.get('/detail', (req, res) => {
     const {maintenance_id, log_profile_id, log_company_id} = req.query
     const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\n' +
@@ -56,6 +80,7 @@ router.get('/detail', (req, res) => {
         '        \'maintenanced_date\', m.maintenanced_date,\n' +
         '        \'create_date\', m.create_date,\n' +
         '        \'filters\', (select JSON_ARRAYAGG(JSON_OBJECT(\'maintenance_filter_id\', mf.id,\n' +
+        '                                                     \'operation_id\', mf.operation_id,\n' +
         '                                                     \'filter_id\', f.id,\n' +
         '                                                     \'name\', f.name,\n' +
         '                                                     \'description\', f.description)) filters\n' +
@@ -73,7 +98,7 @@ router.get('/detail', (req, res) => {
                     message: err
                 })
             }
-            console.log(result)
+
             if (result.length > 0) {
                 res.json({
                     code: 200,
@@ -233,19 +258,20 @@ router.delete('/filter', (req, res) => {
 
 router.get('/byCustomer', (req, res) => {
     const {customer_id} = req.query
-    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'id\', m.id, \'customer_device_id\', m.customer_device_id, \'maintenance_date\',\n' +
-        '                                 m.maintenance_date, \'maintenanced_date\', m.maintenanced_date, \'operation\', m.operation,\n' +
-        '                                 \'description\', m.description, \'create_date\', m.create_date,\n' +
-        '                                 \'filters\', (select JSON_ARRAYAGG(\n' +
-        '                                                            JSON_OBJECT(\'maintenance_filter_id\', mf.id, \'filter_id\',\n' +
-        '                                                                        f.id, \'name\', f.name, \'description\',\n' +
-        '                                                                        f.description))\n' +
-        '                                             from maintenance_filter mf\n' +
-        '                                                      left join filter f on mf.filter_id = f.id\n' +
-        '                                             where mf.maintenance_id = m.id))) as maintenance\n' +
-        'from maintenance m\n' +
-        'where customer_id = ?\n' +
-        '  and is_visible = true'
+    const sql = `select JSON_ARRAYAGG(JSON_OBJECT('id', m.id, 'customer_device_id', m.customer_device_id, 'maintenance_date',
+                                 m.maintenance_date, 'maintenanced_date', m.maintenanced_date, 'operation', m.operation,
+                                 'description', m.description, 'create_date', m.create_date,
+                                 'filters', (select JSON_ARRAYAGG(
+                                                            JSON_OBJECT('maintenance_filter_id',mf.id,'operation_id', mf.operation_id,'operation', fo.operation, 'filter_id',
+                                                                        f.id, 'name', f.name, 'description',
+                                                                        f.description))
+                                             from maintenance_filter mf
+                                                      left join filter f on mf.filter_id = f.id
+                                                      left join filter_operation fo on mf.operation_id = fo.id
+                                             where mf.maintenance_id = m.id))) as maintenance
+from maintenance m
+where customer_id = ?
+  and is_visible = true`
 
     try {
         db.query(sql, [customer_id], (err, results) => {
@@ -283,19 +309,20 @@ router.get('/byCustomer', (req, res) => {
 
 router.get('/byDevice', (req, res) => {
     const {customer_device_id} = req.query
-    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\'id\', m.id, \'customer_device_id\', m.customer_device_id, \'maintenance_date\',\n' +
-        '                                 m.maintenance_date, \'maintenanced_date\', m.maintenanced_date, \'operation\', m.operation,\n' +
-        '                                 \'description\', m.description, \'create_date\', m.create_date,\n' +
-        '                                 \'filters\', (select JSON_ARRAYAGG(\n' +
-        '                                                            JSON_OBJECT(\'maintenance_filter_id\', mf.id, \'filter_id\',\n' +
-        '                                                                        f.id, \'name\', f.name, \'description\',\n' +
-        '                                                                        f.description))\n' +
-        '                                             from maintenance_filter mf\n' +
-        '                                                      left join filter f on mf.filter_id = f.id\n' +
-        '                                             where mf.maintenance_id = m.id))) as maintenance\n' +
-        'from maintenance m\n' +
-        'where customer_device_id = ?\n' +
-        '  and is_visible = true'
+    const sql = `select JSON_ARRAYAGG(JSON_OBJECT('id', m.id, 'customer_device_id', m.customer_device_id, 'maintenance_date',
+                                 m.maintenance_date, 'maintenanced_date', m.maintenanced_date, 'operation', m.operation,
+                                 'description', m.description, 'create_date', m.create_date,
+                                 'filters', (select JSON_ARRAYAGG(
+                                                            JSON_OBJECT('maintenance_filter_id', mf.id,'operation_id', mf.operation_id,'operation', fo.operation, 'filter_id',
+                                                                        f.id, 'name', f.name, 'description',
+                                                                        f.description))
+                                             from maintenance_filter mf
+                                                      left join filter f on mf.filter_id = f.id
+                                                      left join filter_operation fo on mf.operation_id = fo.id
+                                             where mf.maintenance_id = m.id))) as maintenance
+from maintenance m
+where customer_device_id = ?
+  and is_visible = true`
 
     try {
         db.query(sql, [customer_device_id], (err, results) => {
@@ -331,4 +358,32 @@ router.get('/byDevice', (req, res) => {
     }
 })
 
+router.get('/filterOperations', (req, res) => {
+    const sql = `select * from filter_operation`
+
+    try {
+        db.query(sql, (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+            }
+
+            res.json({
+                code: 200,
+                message: 'Filtre operasyonları alındı',
+                data: results
+            })
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
 module.exports = router

@@ -154,9 +154,6 @@ router.put('/', (req, res) => {
             endDate = endDate.toISOString()
         }
 
-        console.log(startDate)
-        console.log(endDate)
-
         let sql = `update company set name = CASE WHEN '${company_name}' ='' or '${company_name}' IS NULL THEN name else '${company_name}' END,
         mail=CASE WHEN '${company_mail}' = '' or '${company_mail}' IS NULL THEN mail else '${company_mail}' END,
         subs_start_date=CASE WHEN '${subs_start_date}' = '' or '${subs_start_date}' IS NULL THEN subs_start_date else '${subs_start_date}' END,

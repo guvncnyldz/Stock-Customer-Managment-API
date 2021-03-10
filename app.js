@@ -8,7 +8,7 @@ global.db = db
 
 var companyRouter = require('./routes/company');
 var profileRouter = require('./routes/profile');
-var customerRouter = require('./routes/customer');
+var customerRouter = require('./routes/customer').router;
 var deviceRouter = require('./routes/device');
 var filterRouter = require('./routes/filter');
 var maintenanceRouter = require('./routes/maintenance');

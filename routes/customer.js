@@ -4,7 +4,6 @@ const router = express.Router();
 
 router.post('/add', (req, res) => {
     const {company_id, filters, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, device_id, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, log_profile_id} = req.body
-    console.log(maintenance_operation)
     addCustomer(res, filters, company_id, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, device_id, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, log_profile_id)
 })
 
@@ -28,7 +27,6 @@ router.post('/addWithDevice', (req, res) => {
 
 function addCustomer(res, filters, company_id, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, device_id, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, profile_id) {
     const sql = 'call createCustomer(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    console.log(maintenance_operation)
 
     let photoPath = ""
 
@@ -188,38 +186,23 @@ router.get('/', (req, res) => {
 
 router.post('/addDeviceFilter', (req, res) => {
     const {customer_device_id, filters} = req.body;
-    const sql = 'INSERT into customer_device_filter (customer_device_id,filter_id) values ?'
-
+    const {log_profile_id, log_company_id} = req.body
 
     try {
-        filters1 = filters.replace(/"/g, '');
-        let finalFilters = JSON.parse(filters1)
-
-        let values = []
-
-        finalFilters.forEach(filter => {
-            let array = []
-            array.push(customer_device_id);
-            array.push(filter);
-
-            values.push(array)
-        })
-
-        db.query(sql, [values], (err, result) => {
-            if (err) {
+        addDeviceFilter(customer_device_id, filters, (err) => {
                 res.json({
                     code: 500,
                     message: err
                 })
 
                 throw err
-            }
-
-            res.json({
-                code: 200,
-                message: "Filtre eklendi"
+            },
+            () => {
+                res.json({
+                    code: 200,
+                    message: "Filtre eklendi"
+                })
             })
-        })
     } catch (error) {
         res.json({
             code: 500,
@@ -229,23 +212,43 @@ router.post('/addDeviceFilter', (req, res) => {
     }
 })
 
-router.delete('/deviceFilter', (req, res) => {
-    const {log_profile_id, log_company_id} = req.body
-    const {customer_device_filter_id} = req.query
+function addDeviceFilter(customer_device_id, filters, error, success) {
+    const sql = 'INSERT into customer_device_filter (customer_device_id,filter_id) values ?'
 
-    let sql = 'delete from customer_device_filter where id = ?'
+    filters1 = filters.replace(/"/g, '');
+    let finalFilters = JSON.parse(filters1)
+
+    let values = []
+
+    finalFilters.forEach(filter => {
+        let array = []
+        array.push(customer_device_id);
+        array.push(filter);
+
+        values.push(array)
+    })
+
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            error(err)
+        }
+
+        success()
+    })
+}
+
+router.delete('/deviceFilter', (req, res) => {
+    const {log_profile_id, log_company_id, filters} = req.body
 
     try {
-        db.query(sql, [customer_device_filter_id], (err, results) => {
-            if (err) {
-                res.json({
-                    code: 500,
-                    message: err
-                })
+        deleteDeviceFilter(filters, (err) => {
+            res.json({
+                code: 500,
+                message: err
+            })
 
-                throw err
-            }
-
+            throw err
+        }, (results) => {
             if (results.affectedRows > 0) {
                 res.json({
                     code: 200,
@@ -266,6 +269,22 @@ router.delete('/deviceFilter', (req, res) => {
         throw error
     }
 })
+
+function deleteDeviceFilter(filters, error, success) {
+    let sql = 'delete from customer_device_filter where id in (?)'
+
+    filters1 = filters.replace(/"/g, '');
+    let finalFilters = JSON.parse(filters1)
+
+    db.query(sql, [finalFilters], (err, results) => {
+        if (err) {
+            error(err)
+        }
+
+        success(results)
+
+    })
+}
 
 router.delete('/', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
@@ -492,4 +511,4 @@ router.get('/devicePhoto', (req, res) => {
     }
 })
 
-module.exports = router
+module.exports = {router, addDeviceFilter, deleteDeviceFilter}
