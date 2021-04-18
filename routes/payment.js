@@ -3,10 +3,18 @@ const router = express.Router();
 
 router.post('/add', (req, res) => {
     const {customer_id, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, log_profile_id, log_company_id} = req.body
-    const sql = 'call createPayment(?,?,?,?,?,?,?,?)'
+    const sql = 'call createPayment(?,?,?,?,?,?,?,?,?)'
 
     try {
-        db.query(sql, [customer_id, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date], (err, results) => {
+        db.query(sql, [customer_id, log_profile_id,payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date], (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+            }
 
             if (results.affectedRows > 0) {
                 res.json({
@@ -27,10 +35,10 @@ router.post('/add', (req, res) => {
 router.post('/partialPay', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
     const {partial_id} = req.query
-    const sql = 'call partialPayORBack(?,?)'
+    const sql = 'call partialPayORBack(?,?,?)'
 
     try {
-        db.query(sql, [partial_id, 1], (err, results) => {
+        db.query(sql, [partial_id, 1,log_profile_id], (err, results) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -64,10 +72,10 @@ router.post('/partialPay', (req, res) => {
 router.post('/partialPayBack', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
     const {partial_id} = req.query
-    const sql = "call partialPayORBack(?,?)"
+    const sql = "call partialPayORBack(?,?,?)"
 
     try {
-        db.query(sql, [partial_id, 0], (err, results) => {
+        db.query(sql, [partial_id, 0,null], (err, results) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -101,10 +109,10 @@ router.post('/partialPayBack', (req, res) => {
 
 router.post('/cashPay', (req, res) => {
     const {payment_id, amount, log_profile_id, log_company_id} = req.body
-    const sql = 'call cashPay(?,?)'
+    const sql = 'call cashPay(?,?,?)'
 
     try {
-        db.query(sql, [payment_id, amount], (err, results) => {
+        db.query(sql, [payment_id, amount,log_profile_id], (err, results) => {
             if (err) {
                 res.json({
                     code: 500,

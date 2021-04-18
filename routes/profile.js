@@ -70,7 +70,7 @@ router.post('/add', (req, res) => {
                     sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path) VALUE (?,?,?,?,?,?)'
 
                     if (photo != null && photo != "") {
-                        photoPath = '/images/profile/' + username + Date.now() + '.png';
+                        photoPath = '/images/profile/' + username.replace(/ /g,'-') + Date.now() + '.png';
                         base64.decodeBase64(photo, photoPath)
                     }
 
@@ -110,7 +110,7 @@ router.post('/add', (req, res) => {
 router.get('/', (req, res) => {
     const {profile_id} = req.query;
 
-    let sql = 'select * from profile where id = ? and is_visible = true'
+    let sql = 'select profile.*,authority.name as authority_name from profile left join authority on profile.authority_id = authority.id where profile.id = ? and is_visible = true'
 
     try {
         db.query(sql, profile_id, (err, results) => {
@@ -205,7 +205,7 @@ router.put('/', ((req, res) => {
 
     try {
         if (photo != null && photo != "") {
-            photoPath = '/images/profile/' + username + Date.now() + '.png';
+            photoPath = '/images/profile/' + username.replace(/ /g,'-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 

@@ -33,7 +33,7 @@ function addCustomer(res, filters, company_id, name_surname, tel_no, province, d
     try {
 
         if (photo != null && photo != "") {
-            photoPath = '/images/customer/' + name_surname + Date.now() + '.png';
+            photoPath = '/images/customer/' + name_surname.replace(/ /g, '-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 
@@ -47,32 +47,43 @@ function addCustomer(res, filters, company_id, name_surname, tel_no, province, d
                 throw err
 
             }
-            customer = JSON.parse(result[0][0].customer)
-            let sql = 'INSERT into customer_device_filter (customer_device_id,filter_id) values ?'
+            customer = JSON.parse(result[1][0].customer)
+            let sql = 'INSERT into maintenance_filter (maintenance_id,filter_id,operation_id) values ?'
 
             if (filters != "") {
 
-                filters1 = filters.replace(/"/g, '');
-                let finalFilters = JSON.parse(filters1)
-
                 let values = []
 
-                finalFilters.forEach(filter => {
-                    let array = []
-                    array.push(customer.devices[0].customer_device_id);
-                    array.push(filter);
+                values = createFiltersArray(filters, customer.devices[0].maintenance[0].maintenance_id, 1, values)
+                addDeviceFilter(customer.devices[0].customer_device_id, filters, (err) => {
+                }, () => {
+                    db.query(sql, [values], (err, result) => {
 
-                    values.push(array)
+
+                        sql = 'select GetCustomer(?) as customer'
+
+                        db.query(sql, customer.id, (err, result) => {
+                            if (err) {
+                                res.json({
+                                    code: 500,
+                                    message: err
+                                })
+
+                                throw err
+
+                            }
+
+                            finalCustomer = JSON.parse(result[0].customer)
+                            res.json({
+                                code: 200,
+                                message: 'Müşteri eklendi',
+                                data: finalCustomer
+                            })
+                        });
+                    });
+
                 })
-
-                db.query(sql, [values]);
             }
-
-            res.json({
-                code: 200,
-                message: 'Müşteri eklendi',
-                data: customer
-            })
         })
     } catch (error) {
         res.json({
@@ -81,6 +92,22 @@ function addCustomer(res, filters, company_id, name_surname, tel_no, province, d
         })
         throw error
     }
+}
+
+function createFiltersArray(filters, id, operation_id, values) {
+    filters1 = filters.replace(/"/g, '');
+    let finalFilters = JSON.parse(filters1)
+
+    finalFilters.forEach(filter => {
+        let array = []
+        array.push(id);
+        array.push(filter);
+        array.push(operation_id);
+
+        values.push(array)
+    })
+
+    return values
 }
 
 router.get('/all', (req, res) => {
@@ -279,10 +306,11 @@ function deleteDeviceFilter(filters, error, success) {
     db.query(sql, [finalFilters], (err, results) => {
         if (err) {
             error(err)
+
+            throw err
         }
 
         success(results)
-
     })
 }
 
@@ -355,7 +383,7 @@ router.put('/', ((req, res) => {
     try {
 
         if (photo != null && photo != "") {
-            photoPath = '/images/customer/' + name_surname + Date.now() + '.png';
+            photoPath = '/images/customer/' + name_surname.replace(/ /g, '-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 
@@ -411,7 +439,7 @@ router.post('/addDevicePhoto', (req, res) => {
 
     try {
 
-        photoPath = '/images/customerDevice/' + customer_device_id + Date.now() + '.png';
+        photoPath = '/images/customerDevice/' + customer_device_id.replace(/ /g, '-') + Date.now() + '.png';
         base64.decodeBase64(photo, photoPath)
 
         db.query(sql, [photoPath, customer_device_id], (err, result) => {

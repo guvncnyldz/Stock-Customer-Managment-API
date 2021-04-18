@@ -11,7 +11,7 @@ router.post('/add', (req, res) => {
     try {
 
         if (photo != null && photo != "") {
-            photoPath = '/images/device/' + model + Date.now() + '.png';
+            photoPath = '/images/device/' + model.replace(/ /g,'-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 
@@ -206,7 +206,7 @@ router.put('/', (req, res) => {
 
     try {
         if (photo != null && photo != "") {
-            photoPath = '/images/device/' + model + Date.now() + '.png';
+            photoPath = '/images/device/' + model.replace(/ /g,'-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 
