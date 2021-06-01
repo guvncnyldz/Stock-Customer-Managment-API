@@ -19,7 +19,23 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f51092cf-ef1d-463a-a1fd-b9dc4e5ca34d" name="Default Changelist" comment="" />
+    <list default="true" id="f51092cf-ef1d-463a-a1fd-b9dc4e5ca34d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/webServers.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/webServers.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/company.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/customer.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/customer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/device.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/device.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/expense.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/expense.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/filter.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/filter.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/job.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/maintenance.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/maintenance.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/payment.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/payment.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/stock.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/stock.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,14 +59,15 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="12.18.3" />
-    <property name="javascript.nodejs.core.library.typings.version" value="12.19.15" />
+    <property name="javascript.nodejs.core.library.configured.version" value="14.16.1" />
+    <property name="javascript.nodejs.core.library.typings.version" value="14.14.43" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -60,6 +77,7 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.General" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/routes/company.js" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -137,6 +155,19 @@
       <workItem from="1618499529556" duration="1882000" />
       <workItem from="1618573589718" duration="4339000" />
       <workItem from="1618659893092" duration="614000" />
+      <workItem from="1620136743991" duration="7697000" />
+      <workItem from="1620335442447" duration="1951000" />
+      <workItem from="1620506090639" duration="659000" />
+      <workItem from="1620518682076" duration="118000" />
+      <workItem from="1620518878547" duration="72000" />
+      <workItem from="1620596604008" duration="2311000" />
+      <workItem from="1620663056183" duration="10000" />
+      <workItem from="1620945446142" duration="556000" />
+      <workItem from="1621306463378" duration="4525000" />
+      <workItem from="1621323279420" duration="1211000" />
+      <workItem from="1622118094609" duration="4787000" />
+      <workItem from="1622234072178" duration="865000" />
+      <workItem from="1622342283066" duration="14947000" />
     </task>
     <servers />
   </component>
@@ -154,59 +185,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="499" y="127" key="#Deployment" timestamp="1617622929429">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="499" y="127" key="#Deployment/0.0.1536.824@0.0.1536.824" timestamp="1617622929429" />
-    <state x="491" y="214" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1614630703102">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="491" y="214" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1614630703102" />
-    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog" timestamp="1612284595358">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1612284595358" />
-    <state x="142" y="122" width="1350" height="638" key="DirDiffDialog" timestamp="1618499190799">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="154" y="150" width="1350" height="638" key="DirDiffDialog/0.0.1536.824/-1920.-81.1920.1040@0.0.1536.824" timestamp="1615371164557" />
-    <state x="142" y="122" width="1350" height="638" key="DirDiffDialog/0.0.1536.824@0.0.1536.824" timestamp="1618499190799" />
-    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1618433856180">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824/-1920.-81.1920.1040@0.0.1536.824" timestamp="1615371752912" />
-    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1618433856180" />
-    <state width="498" height="446" key="SwitcherDM" timestamp="1613762090468">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="498" height="446" key="SwitcherDM/0.0.1536.824@0.0.1536.824" timestamp="1613762090468" />
-    <state x="586" y="326" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1615063615531">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="586" y="326" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.824@0.0.1536.824" timestamp="1615063615531" />
-    <state x="478" y="145" width="579" height="624" key="find.popup" timestamp="1617030648222">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="478" y="145" width="579" height="534" key="find.popup/0.0.1536.824/-1920.-81.1920.1040@0.0.1536.824" timestamp="1613468580829" />
-    <state x="478" y="145" width="579" height="624" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1617030648222" />
-    <state x="725" y="199" key="ftp.server.browser" timestamp="1613770087723">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="725" y="199" key="ftp.server.browser/0.0.1536.824@0.0.1536.824" timestamp="1613770087723" />
-    <state x="640" y="304" key="publish.login" timestamp="1618496446751">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="640" y="304" key="publish.login/0.0.1536.824/-1920.-81.1920.1040@0.0.1536.824" timestamp="1615369708654" />
-    <state x="640" y="304" key="publish.login/0.0.1536.824@0.0.1536.824" timestamp="1618496446751" />
-    <state x="425" y="187" key="run.anything.popup" timestamp="1618659904688">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="425" y="187" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1618659904688" />
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1613718166525">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1613718166525" />
   </component>
 </project>

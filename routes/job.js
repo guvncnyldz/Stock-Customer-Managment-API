@@ -214,7 +214,7 @@ router.post('/setDone', (req, res) => {
     let sql = `update job set done_by = -1 where id = ?`
 
     if(is_done == 1)
-        sql = 'update job set done_by = '+done_by_id+' where id = ?'
+        sql = 'update job set done_by = '+done_by_id+', done_date= current_timestamp where id = ?'
 
     try {
         db.query(sql, job_id, (err, results) => {

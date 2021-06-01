@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const base64 = require('../utils/base64Util')
+const db_log = require('../db_logs/util')
 
 router.post('/addCategory', (req, res) => {
     const {category_name, company_id, log_profile_id} = req.body
@@ -55,7 +56,7 @@ router.get('/categories', (req, res) => {
 router.get('/all', (req, res) => {
     const {company_id} = req.query
     const sql = `select JSON_ARRAYAGG(JSON_OBJECT(
-        'category_id', c.category_name,
+        'category_id', c.stock_category_id,
         'category_name', c.category_name,
         'stock', (select JSON_ARRAYAGG(JSON_OBJECT(
                 'stock_id',s.stock_id,
@@ -179,7 +180,17 @@ router.put('/category', (req, res) => {
 })
 
 router.post('/add', (req, res) => {
-    const {company_id, category_id, stock_name, stock_description, stock_photo, sale_price, purchase_price, stock_quantity, log_profile_id} = req.body
+    const {
+        company_id,
+        category_id,
+        stock_name,
+        stock_description,
+        stock_photo,
+        sale_price,
+        purchase_price,
+        stock_quantity,
+        log_profile_id
+    } = req.body
     let sql = 'INSERT INTO stock (company_id,profile_id,stock_category_id,stock_name,stock_description,sale_price,purchase_price,stock_quantity,photo_path) VALUE (?,?,?,?,?,?,?,?,?)'
 
     let photoPath = "";
@@ -189,7 +200,7 @@ router.post('/add', (req, res) => {
         base64.decodeBase64(stock_photo, photoPath)
     }
 
-    db.query(sql, [company_id, log_profile_id, category_id, stock_name, stock_description, sale_price, purchase_price, stock_quantity, photoPath], (err) => {
+    db.query(sql, [company_id, log_profile_id, category_id, stock_name, stock_description, sale_price, purchase_price, stock_quantity, photoPath], (err,result) => {
         if (err) {
             res.json({
                 code: 500,
@@ -199,6 +210,7 @@ router.post('/add', (req, res) => {
             throw err
         }
 
+        db_log.add_stock_log(log_profile_id,company_id,stock_quantity,result.insertId,3,1,purchase_price);
         res.json({
             code: 200,
             message: "Stok oluşturuldu",
@@ -287,7 +299,17 @@ router.delete('/', (req, res) => {
 })
 
 router.put('/', ((req, res) => {
-    let {category_id, stock_name, stock_description, stock_photo, sale_price, purchase_price, stock_quantity, log_profile_id,log_company_id} = req.body
+    let {
+        category_id,
+        stock_name,
+        stock_description,
+        stock_photo,
+        sale_price,
+        purchase_price,
+        stock_quantity,
+        log_profile_id,
+        log_company_id
+    } = req.body
     const {stock_id} = req.query
 
     if (!category_id)
@@ -307,7 +329,7 @@ router.put('/', ((req, res) => {
 
     try {
         if (stock_photo != null && stock_photo != "") {
-            photoPath = '/images/profile/' + stock_name.replace(/ /g, '-') + Date.now() + '.png';
+            photoPath = '/images/stock/' + stock_name.replace(/ /g, '-') + Date.now() + '.png';
             base64.decodeBase64(stock_photo, photoPath)
         }
 
@@ -352,4 +374,62 @@ router.put('/', ((req, res) => {
     }
 }))
 
+router.post('/sell', (req, res) => {
+    const {stock_id, stock_type, quantity, log_company_id, log_profile_id} = req.body;
+
+    let log_sql = "";
+    let sql = "";
+    switch (stock_type) {
+        case '1':
+            log_sql = "select sale_price from device where id = ?";
+            sql = 'update device set quantity = quantity - ?, profit = profit +(? * (sale_price - purchase_price)) where id = ?';
+            break;
+        case '2':
+            log_sql = "select sale_price from filter where id = ?";
+            sql = 'update filter set quantity = quantity - ?, profit = profit +(? * (sale_price - purchase_price)) where id = ?';
+            break;
+        case '3':
+            log_sql = "select sale_price from stock where stock_id = ?";
+            sql = 'update stock set stock_quantity = stock_quantity - ?, stock_profit = stock_profit +(? * (sale_price - purchase_price)) where stock_id = ?';
+            break;
+        default:
+            res.json({
+                code: 500,
+                message: "Hatalı stok tipi"
+            })
+            return;
+    }
+
+    db.query(sql, [quantity, quantity,stock_id], (err, result) => {
+        if (err) {
+            res.json({
+                code: 500,
+                message: err
+            })
+
+            throw err
+        }
+
+        if(result.affectedRows > 0)
+        {
+            db.query(log_sql,[stock_id],(err,result) =>
+            {
+                let price = result[0].sale_price;
+                db_log.add_stock_log(log_profile_id,log_company_id,quantity,stock_id,stock_type,2,price)
+            })
+
+            res.json({
+                code: 200,
+                message: "Stok satıldı"
+            })
+        }
+        else
+        {
+            res.json({
+                code: 404,
+                message: "Stok bulunamadı"
+            })
+        }
+    })
+})
 module.exports = router

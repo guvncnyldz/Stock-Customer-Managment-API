@@ -46,9 +46,14 @@ router.post('/addSubcategory', (req, res) => {
 
 router.get('/categories', (req, res) => {
     const {company_id} = req.query
-    const sql = `select c.*,sc.*  
-from expense_category c
-right join expense_subcategory sc on c.expense_category_id = sc.expense_category_id and sc.is_visible = true
+    const sql = `select JSON_ARRAYAGG(JSON_OBJECT(
+    'category_id',c.expense_category_id,
+    'category_name',c.category_name,
+    'subcategories', (select JSON_ARRAYAGG(JSON_OBJECT(
+        'subcategory_id', sc.expense_subcategory_id,
+        'subcategory_name',sc.subcategory_name
+            )) from expense_subcategory sc where sc.is_visible = true and c.expense_category_id = sc.expense_category_id)
+    )) as categories from expense_category c
 where c.company_id = ? and c.is_visible = true`
 
     db.query(sql, [company_id], (err, results) => {
@@ -61,13 +66,13 @@ where c.company_id = ? and c.is_visible = true`
             throw err
         }
 
-        //let row = JSON.parse(results[0].categories)
+        let row = JSON.parse(results[0].categories)
 
         if (results.length > 0) {
             res.json({
                 code: 200,
                 message: "Kategori listesi alındı",
-                data: results,
+                data: row,
             })
         } else {
             res.json({

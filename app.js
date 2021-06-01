@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var cors = require('cors')
 
 
 const db = require('./helper/databaseConnection')
@@ -17,11 +18,13 @@ var jobRouter = require('./routes/job');
 var rendezvousRouter = require('./routes/rendezvous');
 var expenseRouter = require('./routes/expense');
 var stockRouter = require('./routes/stock');
+var companyLogRouter = require('./routes/company_log');
+var profileLogRouter = require('./routes/profile_log');
 
 var app = express();
-
+app.use(cors())
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,5 +39,7 @@ app.use('/job', jobRouter);
 app.use('/rendezvous', rendezvousRouter);
 app.use('/expense', expenseRouter);
 app.use('/stock', stockRouter);
+app.use('/companyLog', companyLogRouter);
+app.use('/profileLog', profileLogRouter);
 
 module.exports = app;

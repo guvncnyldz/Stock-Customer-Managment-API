@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const base64 = require('../utils/base64Util');
+const db_log = require('../db_logs/util');
 
 router.post('/add', (req, res) => {
     const {company_id, name, description, warranty_period, quantity, purchase_price, sale_price,photo,log_profile_id} = req.body;
@@ -15,7 +16,7 @@ router.post('/add', (req, res) => {
             base64.decodeBase64(photo, photoPath)
         }
 
-        db.query(sql, [company_id, name, description, warranty_period, quantity, purchase_price, sale_price,photoPath], (err) => {
+        db.query(sql, [company_id, name, description, warranty_period, quantity, purchase_price, sale_price,photoPath], (err,result) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -24,6 +25,8 @@ router.post('/add', (req, res) => {
 
                 throw err
             }
+
+            db_log.add_stock_log(log_profile_id,company_id,quantity,result.insertId,2,1,purchase_price);
 
             res.json({
                 code: 200,

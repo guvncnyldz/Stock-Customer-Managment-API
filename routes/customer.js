@@ -1,5 +1,6 @@
 const express = require('express');
 const base64 = require('../utils/base64Util')
+const db_log = require('../db_logs/util')
 const router = express.Router();
 
 router.post('/add', (req, res) => {
@@ -8,12 +9,13 @@ router.post('/add', (req, res) => {
 })
 
 router.post('/addWithDevice', (req, res) => {
-    const {company_id, filters, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, model, is_system_open, warranty_period, log_profile_id} = req.body
+    const {company_id, filters, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, model, is_system_open, warranty_period, log_profile_id,purchase_price} = req.body
     const sql = 'INSERT into device (company_id,model,is_system_open,warranty_period,quantity) values (?,?,?,?,1)'
 
     try {
 
         db.query(sql, [company_id, model, is_system_open, warranty_period], (err, result) => {
+            db_log.add_stock_log(log_profile_id,company_id,1,result.insertId,1,1,purchase_price);
             addCustomer(res, filters, company_id, name_surname, tel_no, province, district, neighborhood, street, apartment, address_description, latitude, longitude, result.insertId, installation_date, maintenance_date, maintenance_operation, maintenance_description, warranty_start_date, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, photo, log_profile_id)
         })
     } catch (error) {
@@ -47,7 +49,11 @@ function addCustomer(res, filters, company_id, name_surname, tel_no, province, d
                 throw err
 
             }
-            customer = JSON.parse(result[1][0].customer)
+
+            customer = JSON.parse(result[0][0].customer)
+
+            db_log.add_customer_log(profile_id,company_id,customer.id,1);
+
             let sql = 'INSERT into maintenance_filter (maintenance_id,filter_id,operation_id) values ?'
 
             if (filters != "") {
@@ -188,7 +194,7 @@ router.get('/', (req, res) => {
                 throw err
             }
 
-            if (result.length > 0) {
+            if (result[0].customer) {
 
                 res.json({
                     code: 200,
@@ -318,7 +324,7 @@ router.delete('/', (req, res) => {
     const {log_profile_id, log_company_id} = req.body
     const {customer_id} = req.query
 
-    let sql = 'update customer set is_visible=false where id = ?'
+    let sql = 'update customer set is_visible=false where id = ? and is_visible = 1'
 
     try {
         db.query(sql, [customer_id], (err, results) => {
@@ -332,6 +338,7 @@ router.delete('/', (req, res) => {
             }
 
             if (results.affectedRows > 0) {
+                db_log.add_customer_log(log_profile_id,log_company_id,customer_id,3);
                 res.json({
                     code: 200,
                     message: 'Müşteri silindi',
@@ -412,6 +419,7 @@ router.put('/', ((req, res) => {
             }
 
             if (result.affectedRows > 0) {
+                db_log.add_customer_log(log_profile_id,log_company_id,customer_id,2);
                 res.json({
                     code: 200,
                     message: 'Müşteri güncellendi',

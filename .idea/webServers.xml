@@ -2,7 +2,7 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="63ecbc2d-8f89-4a3d-b90b-3bd1e3d2ae3a" name="31.210.91.239" url="http://31.210.91.239">
+      <webServer id="63ecbc2d-8f89-4a3d-b90b-3bd1e3d2ae3a" name="Ekmekk" url="http://31.210.91.239">
         <fileTransfer rootFolder="/ezrak" host="31.210.91.239" port="21">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />

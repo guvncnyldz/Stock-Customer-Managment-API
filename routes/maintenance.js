@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.post('/do', (req, res) => {
     const {customer_device_id, operation, description, maintenance_date, customer_id, maintained_filters, new_filters, old_filters,other_filters, log_profile_id, log_company_id} = req.body
-    let sql = "INSERT INTO maintenance(customer_id,profile_id,operation,description,customer_device_id, maintenance_date, maintenanced_date) VALUES (?,?,?,?,?, COALESCE(?, '0000/00/00'), current_timestamp)"
+    let sql = "INSERT INTO maintenance(company_id,customer_id,profile_id,operation,description,customer_device_id, maintenance_date, maintenanced_date) VALUES (?,?,?,?,?,?, COALESCE(?, '0000/00/00'), current_timestamp)"
 
     try {
-        db.query(sql, [customer_id,log_profile_id, operation, description, customer_device_id, maintenance_date], (err, result) => {
+        db.query(sql, [log_company_id,customer_id,log_profile_id, operation, description, customer_device_id, maintenance_date], (err, result) => {
             if (err) {
                 res.json({
                     code: 500,
@@ -294,12 +294,11 @@ router.get('/byCustomer', (req, res) => {
                                  m.maintenance_date, 'maintenanced_date', m.maintenanced_date, 'operation', m.operation,
                                  'description', m.description, 'create_date', m.create_date,
                                  'filters', (select JSON_ARRAYAGG(
-                                                            JSON_OBJECT('maintenance_filter_id',mf.id,'operation_id', mf.operation_id,'operation', fo.operation, 'filter_id',
+                                                            JSON_OBJECT('maintenance_filter_id',mf.id,'operation_id', mf.operation_id,'filter_id',
                                                                         f.id, 'name', f.name, 'description',
                                                                         f.description))
                                              from maintenance_filter mf
                                                       left join filter f on mf.filter_id = f.id
-                                                      left join filter_operation fo on mf.operation_id = fo.id
                                              where mf.maintenance_id = m.id))) as maintenance
 from maintenance m
 left join profile p on m.profile_id = p.id
@@ -346,12 +345,11 @@ router.get('/byDevice', (req, res) => {
                                  m.maintenance_date, 'maintenanced_date', m.maintenanced_date, 'operation', m.operation,
                                  'description', m.description, 'create_date', m.create_date,
                                  'filters', (select JSON_ARRAYAGG(
-                                                            JSON_OBJECT('maintenance_filter_id', mf.id,'operation_id', mf.operation_id,'operation', fo.operation, 'filter_id',
+                                                            JSON_OBJECT('maintenance_filter_id', mf.id,'operation_id', mf.operation_id, 'filter_id',
                                                                         f.id, 'name', f.name, 'description',
                                                                         f.description))
                                              from maintenance_filter mf
                                                       left join filter f on mf.filter_id = f.id
-                                                      left join filter_operation fo on mf.operation_id = fo.id
                                              where mf.maintenance_id = m.id))) as maintenance
 from maintenance m
 left join profile p on m.profile_id = p.id
@@ -392,32 +390,4 @@ where customer_device_id = ?
     }
 })
 
-router.get('/filterOperations', (req, res) => {
-    const sql = `select * from filter_operation`
-
-    try {
-        db.query(sql, (err, results) => {
-            if (err) {
-                res.json({
-                    code: 500,
-                    message: err
-                })
-
-                throw err
-            }
-
-            res.json({
-                code: 200,
-                message: 'Filtre operasyonları alındı',
-                data: results
-            })
-        })
-    } catch (error) {
-        res.json({
-            code: 500,
-            message: error.toString()
-        })
-        throw error
-    }
-})
 module.exports = router

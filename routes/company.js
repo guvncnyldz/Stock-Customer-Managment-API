@@ -393,4 +393,63 @@ router.delete('/phone', (req, res) => {
     }
 })
 
+router.get('/log',(req,res) => {
+    const {company_id} = req.query
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '        \'customer_count\', (select count(c.id) from customer c where c.company_id = ? and c.is_visible = true),\n' +
+        '        \'pending_maintenance\', (select count(m.id) from maintenance m where m.maintenanced_date=\'0000/00/00\' and m.company_id = ? and m.is_visible = true),\n' +
+        '        \'pending_payments\', coalesce((select sum(cp.total_pay - (cp.total_paid + cp.first_paid))\n' +
+        '                             from customer_payment cp\n' +
+        '                             where cp.company_id = ?\n' +
+        '                               and cp.is_visible = true),0),\n' +
+        '        \'total_income\', coalesce((select sum(cp.total_paid + cp.first_paid)\n' +
+        '                          from customer_payment cp\n' +
+        '                          where cp.company_id = ? and cp.is_visible = true),0) + coalesce((select sum(sl.quantity * sl.price)\n' +
+        '                                                                               from stock_log sl\n' +
+        '                                                                               where sl.company_id = ?\n' +
+        '                                                                                 and sl.is_visible = true\n' +
+        '                                                                                 and sl.log_type = \'Satıldı\'),0),\n' +
+        '        \'total_outcome\', (coalesce((select sum(e.cost) from expense e where e.company_id = ? and e.is_visible = true),0) +\n' +
+        '                          coalesce((select sum(sl.quantity * sl.price)\n' +
+        '                                    from stock_log sl\n' +
+        '                                    where sl.company_id = ?\n' +
+        '                                      and sl.is_visible = true\n' +
+        '                                      and sl.log_type = \'Eklendi\'), 0))\n' +
+        '    )) as company_log\n';
+
+    try {
+        db.query(sql, [company_id,company_id,company_id,company_id,company_id,company_id,company_id], (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+
+            }
+
+            if (results.length != 0) {
+
+                res.json({
+                    code: 200,
+                    message: 'Şirket logları alındı',
+                    data: JSON.parse(results[0].logs)
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Şirket bulunamadı',
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
+
 module.exports = router

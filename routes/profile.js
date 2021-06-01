@@ -4,7 +4,9 @@ const router = express.Router();
 
 router.post('/login', (req, res) => {
     const {username, password} = req.body
-    const sql = 'select * from profile where is_visible = true and username = ? and password = ?'
+    const sql = 'select p.*,c.subs_end_date from profile p\n' +
+        'right join company c on c.id = p.company_id\n' +
+        'where p.is_visible = true and p.is_active = true and p.username = ? and p.password = ?\n'
 
     try {
         db.query(sql, [username, password], (err, result) => {
@@ -17,12 +19,24 @@ router.post('/login', (req, res) => {
                 throw err
             }
 
+
             if (result.length > 0) {
-                res.json({
-                    code: 200,
-                    message: "Giriş başarılı",
-                    data: result[0]
-                })
+
+                let end_date = new Date(result[0].subs_end_date)
+
+                if (end_date > new Date()) {
+                    res.json({
+                        code: 200,
+                        message: "Giriş başarılı",
+                        data: result[0]
+                    })
+                } else {
+                    res.json({
+                        code: 403,
+                        message: "Abonelik süresi dolmuştur.",
+                    })
+                }
+
             } else {
                 res.json({
                     code: 404,
@@ -40,7 +54,7 @@ router.post('/login', (req, res) => {
 })
 
 router.post('/add', (req, res) => {
-    const {company_id, username, password, name_surname, photo, authority_id, log_profile_id} = req.body
+    const {company_id, username, password, name_surname, photo, authority_id, tel_no, log_profile_id} = req.body
     let sql = 'select id from profile where username = ?'
 
     let photoPath = "";
@@ -67,14 +81,14 @@ router.post('/add', (req, res) => {
                 } else {
 
 
-                    sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path) VALUE (?,?,?,?,?,?)'
+                    sql = 'INSERT INTO profile (company_id, authority_id, username, password, name_surname, photo_path,tel_no) VALUE (?,?,?,?,?,?,?)'
 
                     if (photo != null && photo != "") {
-                        photoPath = '/images/profile/' + username.replace(/ /g,'-') + Date.now() + '.png';
+                        photoPath = '/images/profile/' + username.replace(/ /g, '-') + Date.now() + '.png';
                         base64.decodeBase64(photo, photoPath)
                     }
 
-                    db.query(sql, [company_id, authority_id, username, password, name_surname, photoPath], (err) => {
+                    db.query(sql, [company_id, authority_id, username, password, name_surname, photoPath, tel_no], (err) => {
                         if (err) {
                             res.json({
                                 code: 500,
@@ -96,6 +110,51 @@ router.post('/add', (req, res) => {
                     message: error.toString()
                 })
                 throw error
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
+
+router.get('/log', (req, res) => {
+    const {profile_id} = req.query
+    const sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '        \'maintenance\', (select count(m.id) from maintenance m where m.profile_id=? and m.is_visible=true),\n' +
+        '        \'job\', (select count(j.id) from job j where j.done_by=? and j.is_visible=true),\n' +
+        '        \'rendezvous\', (select count(r.id) from rendezvous r where r.done_by=? and r.is_visible=true),\n' +
+        '        \'payment\',(select count(pp.id) from payment_partial_detail pp where pp.profile_id=? and pp.is_visible = true)+(select count(pc.id) from payment_cash_detail pc where pc.profile_id=? and pc.is_visible=true),\n' +
+        '        \'added_customer\', (select count(cl.id) from customer_log cl where cl.profile_id=? and cl.is_visible=true and cl.log_type=\'Eklendi\')\n' +
+        '        )) as logs\n';
+
+    try {
+        db.query(sql, [profile_id, profile_id, profile_id, profile_id, profile_id, profile_id], (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+
+            }
+
+            if (results.length != 0) {
+
+                res.json({
+                    code: 200,
+                    message: 'Kullanıcı logları alındı',
+                    data: JSON.parse(results[0].logs)
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Kullanıcı bulunamadı',
+                })
             }
         })
     } catch (error) {
@@ -135,6 +194,102 @@ router.get('/', (req, res) => {
                 res.json({
                     code: 404,
                     message: 'Kullanıcı bulunamadı',
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
+
+router.get('/today', (req, res) => {
+    const {company_id, profile_id} = req.query;
+
+    let sql = 'select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '        \'partial_payments\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '                \'payment_id\', cp.id,\n' +
+        '                \'payment_name\', cp.name,\n' +
+        '                \'payment_description\', cp.description,\n' +
+        '                \'payment_total_pay\', cp.total_pay,\n' +
+        '                \'payment_total_paid\', cp.total_paid,\n' +
+        '                \'customer_id\', cp.customer_id,\n' +
+        '                \'customer_name\', pc.name_surname,\n' +
+        '                \'partial_detail_id\', ppd.id,\n' +
+        '                \'partial_amount\', ppd.amount\n' +
+        '            ))\n' +
+        '                             from customer_payment cp\n' +
+        '                                      right join payment_partial_detail ppd\n' +
+        '                                                 on cp.id = ppd.payment_id and DATE(ppd.payment_date) = CURDATE() and\n' +
+        '                                                    ppd.is_visible = true\n' +
+        '                                      right join customer pc on ppd.customer_id = pc.id and pc.is_visible = true\n' +
+        '                             where cp.company_id = ?\n' +
+        '                               and cp.is_partial = 1\n' +
+        '                               and cp.is_visible = true),\n' +
+        '        \'maintenances\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '                \'customer_id\', m.customer_id,\n' +
+        '                \'customer_name\', c.name_surname,\n' +
+        '                \'maintenance_id\', m.id,\n' +
+        '                \'maintenance_operation\', m.operation,\n' +
+        '                \'maintenance_description\', m.description,\n' +
+        '                \'customer_device_id\', m.customer_device_id\n' +
+        '            )\n' +
+        '                                    )\n' +
+        '                         from maintenance m\n' +
+        '                                  right join customer c on m.customer_id = c.id and c.is_visible = true\n' +
+        '                         where m.company_id = ?\n' +
+        '                           and m.is_visible = true\n' +
+        '                           and DATE(m.maintenance_date) = CURDATE()),\n' +
+        '        \'rendezvous\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '                \'customer_id\', c.id,\n' +
+        '                \'customer_name\', c.name_surname,\n' +
+        '                \'rendezvous_id\', r.id,\n' +
+        '                \'rendezvous_name\', r.name,\n' +
+        '                \'rendezvous_description\', r.description\n' +
+        '            ))\n' +
+        '                       from rendezvous r\n' +
+        '                                left join customer c on r.customer_id = c.id and c.is_visible = true\n' +
+        '                       where r.company_id = ?\n' +
+        '                         and r.done_by = -1\n' +
+        '                         and r.is_visible = true\n' +
+        '                         and DATE(r.date) = CURDATE()\n' +
+        '        ),\n' +
+        '        \'jobs\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
+        '            \'job_id\',j.id,\n' +
+        '            \'job_name\',j.name,\n' +
+        '            \'job_description\',j.description\n' +
+        '            ))\n' +
+        '                 from job j\n' +
+        '                 where j.company_id = ?\n' +
+        '                   and (j.job_to = ? or j.job_to = 0)\n' +
+        '                   and DATE(j.deadline_date) = CURDATE()\n' +
+        '                   and j.is_visible = true\n' +
+        '                   and j.done_by = -1\n' +
+        '        )\n' +
+        '    )) today'
+
+    try {
+        db.query(sql, [company_id, company_id, company_id, company_id, profile_id], (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+
+            }
+
+
+            if (JSON.parse(results[0].today)) {
+
+                res.json({
+                    code: 200,
+                    message: 'Bugünün işleri alındı',
+                    data: JSON.parse(results[0].today)
                 })
             }
         })
@@ -188,6 +343,45 @@ router.delete('/', (req, res) => {
     }
 })
 
+router.post('/setActive', (req, res) => {
+    const {profile_id, is_active, log_profile_id, log_company_id} = req.body;
+    let sql = 'update profile set is_active = ? where id = ?'
+
+    try {
+        db.query(sql, [is_active, profile_id], (err, results) => {
+            if (err) {
+                res.json({
+                    code: 500,
+                    message: err
+                })
+
+                throw err
+
+            }
+
+            console.log(results)
+
+            if (results.affectedRows > 0) {
+
+                res.json({
+                    code: 200,
+                    message: 'Kullanıcı aktifliği değiştirildi'
+                })
+            } else {
+                res.json({
+                    code: 404,
+                    message: 'Kullanıcı bulunamadı'
+                })
+            }
+        })
+    } catch (error) {
+        res.json({
+            code: 500,
+            message: error.toString()
+        })
+        throw error
+    }
+})
 router.put('/', ((req, res) => {
     let {username, password, name_surname, photo, authority_id, log_profile_id, log_company_id} = req.body
     const {profile_id} = req.query
@@ -205,7 +399,7 @@ router.put('/', ((req, res) => {
 
     try {
         if (photo != null && photo != "") {
-            photoPath = '/images/profile/' + username.replace(/ /g,'-') + Date.now() + '.png';
+            photoPath = '/images/profile/' + username.replace(/ /g, '-') + Date.now() + '.png';
             base64.decodeBase64(photo, photoPath)
         }
 

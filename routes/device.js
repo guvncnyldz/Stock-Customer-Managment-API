@@ -1,5 +1,6 @@
 const express = require('express');
 const base64 = require('../utils/base64Util')
+const db_log = require('../db_logs/util')
 const router = express.Router();
 
 router.post('/add', (req, res) => {
@@ -24,6 +25,7 @@ router.post('/add', (req, res) => {
 
             }
 
+            db_log.add_stock_log(log_profile_id,company_id,quantity,result.insertId,1,1,purchase_price);
             if (filters != "") {
                 sql = 'INSERT into device_filter (device_id,filter_id) values ?'
 

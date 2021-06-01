@@ -3,10 +3,10 @@ const router = express.Router();
 
 router.post('/add', (req, res) => {
     const {customer_id, payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date, log_profile_id, log_company_id} = req.body
-    const sql = 'call createPayment(?,?,?,?,?,?,?,?,?)'
+    const sql = 'call createPayment(?,?,?,?,?,?,?,?,?,?)'
 
     try {
-        db.query(sql, [customer_id, log_profile_id,payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date], (err, results) => {
+        db.query(sql, [customer_id, log_profile_id,payment_name, payment_description, total_pay, first_paid, is_partial, partial_count, partial_start_date,log_company_id], (err, results) => {
             if (err) {
                 res.json({
                     code: 500,
