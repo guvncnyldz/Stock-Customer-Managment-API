@@ -21,20 +21,17 @@
   <component name="ChangeListManager">
     <list default="true" id="f51092cf-ef1d-463a-a1fd-b9dc4e5ca34d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/webServers.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/webServers.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/databaseConnection.js" beforeDir="false" afterPath="$PROJECT_DIR$/helper/databaseConnection.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/company.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/company_log.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/company_log.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/customer.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/customer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/device.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/device.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/expense.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/expense.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/filter.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/filter.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/job.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/maintenance.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/maintenance.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/payment.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/payment.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/profile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/stock.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/stock.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/profile_log.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/profile_log.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +57,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
@@ -168,6 +165,9 @@
       <workItem from="1622118094609" duration="4787000" />
       <workItem from="1622234072178" duration="865000" />
       <workItem from="1622342283066" duration="14947000" />
+      <workItem from="1623094827600" duration="1124000" />
+      <workItem from="1623224579028" duration="8644000" />
+      <workItem from="1623686336704" duration="5402000" />
     </task>
     <servers />
   </component>

@@ -309,6 +309,9 @@ function deleteDeviceFilter(filters, error, success) {
     filters1 = filters.replace(/"/g, '');
     let finalFilters = JSON.parse(filters1)
 
+    if(!finalFilters.length)
+        return;
+
     db.query(sql, [finalFilters], (err, results) => {
         if (err) {
             error(err)
@@ -338,10 +341,25 @@ router.delete('/', (req, res) => {
             }
 
             if (results.affectedRows > 0) {
-                db_log.add_customer_log(log_profile_id,log_company_id,customer_id,3);
-                res.json({
-                    code: 200,
-                    message: 'Müşteri silindi',
+                sql = 'update customer_payment\n' +
+                    'left join payment_cash_detail pcd on customer_payment.id = pcd.customer_payment_id\n' +
+                    'left join payment_partial_detail ppd on customer_payment.id = ppd.payment_id\n' +
+                    '    set customer_payment.is_visible = 0, pcd.is_visible = 0, ppd.is_visible = 0\n' +
+                    'where\n' +
+                    '    customer_payment.customer_id = ?'
+                db.query(sql,[customer_id],(err,results) => {
+                    if (results.affectedRows > 0) {
+                        sql = 'update maintenance set is_visible = 0 where customer_id = ?'
+                        db.query(sql,[customer_id],(err,results) => {
+                            if (results.affectedRows > 0) {
+                                db_log.add_customer_log(log_profile_id,log_company_id,customer_id,3);
+                                res.json({
+                                    code: 200,
+                                    message: 'Müşteri silindi',
+                                })
+                            }
+                        })
+                    }
                 })
             } else {
                 res.json({

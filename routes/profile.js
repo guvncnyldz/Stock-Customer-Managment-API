@@ -169,7 +169,7 @@ router.get('/log', (req, res) => {
 router.get('/', (req, res) => {
     const {profile_id} = req.query;
 
-    let sql = 'select profile.*,authority.name as authority_name from profile left join authority on profile.authority_id = authority.id where profile.id = ? and is_visible = true'
+    let sql = 'select profile.*,authority.name as authority_name, c.name as company_name from profile left join company c on c.id = profile.company_id = c.id left join authority on profile.authority_id = authority.id where profile.id = ? and profile.is_visible = true'
 
     try {
         db.query(sql, profile_id, (err, results) => {
@@ -218,20 +218,23 @@ router.get('/today', (req, res) => {
         '                \'payment_total_paid\', cp.total_paid,\n' +
         '                \'customer_id\', cp.customer_id,\n' +
         '                \'customer_name\', pc.name_surname,\n' +
+        '                \'customer_visibility\', pc.is_visible,\n' +
         '                \'partial_detail_id\', ppd.id,\n' +
         '                \'partial_amount\', ppd.amount\n' +
         '            ))\n' +
         '                             from customer_payment cp\n' +
         '                                      right join payment_partial_detail ppd\n' +
         '                                                 on cp.id = ppd.payment_id and DATE(ppd.payment_date) = CURDATE() and\n' +
-        '                                                    ppd.is_visible = true\n' +
-        '                                      right join customer pc on ppd.customer_id = pc.id and pc.is_visible = true\n' +
+        '                                                    ppd.is_visible = true' +
+        '                                                       and ppd.is_paid = 0\n' +
+        '                                      left join customer pc on ppd.customer_id = pc.id\n' +
         '                             where cp.company_id = ?\n' +
         '                               and cp.is_partial = 1\n' +
         '                               and cp.is_visible = true),\n' +
         '        \'maintenances\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
         '                \'customer_id\', m.customer_id,\n' +
         '                \'customer_name\', c.name_surname,\n' +
+        '                \'customer_visibility\', c.is_visible,\n' +
         '                \'maintenance_id\', m.id,\n' +
         '                \'maintenance_operation\', m.operation,\n' +
         '                \'maintenance_description\', m.description,\n' +
@@ -239,19 +242,21 @@ router.get('/today', (req, res) => {
         '            )\n' +
         '                                    )\n' +
         '                         from maintenance m\n' +
-        '                                  right join customer c on m.customer_id = c.id and c.is_visible = true\n' +
+        '                                  left join customer c on m.customer_id = c.id\n' +
         '                         where m.company_id = ?\n' +
         '                           and m.is_visible = true\n' +
         '                           and DATE(m.maintenance_date) = CURDATE()),\n' +
         '        \'rendezvous\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
         '                \'customer_id\', c.id,\n' +
         '                \'customer_name\', c.name_surname,\n' +
+        '                \'customer_visibility\', c.is_visible,\n' +
         '                \'rendezvous_id\', r.id,\n' +
         '                \'rendezvous_name\', r.name,\n' +
+        '                \'rendezvous_date\', r.date,\n' +
         '                \'rendezvous_description\', r.description\n' +
         '            ))\n' +
         '                       from rendezvous r\n' +
-        '                                left join customer c on r.customer_id = c.id and c.is_visible = true\n' +
+        '                                left join customer c on r.customer_id = c.id\n' +
         '                       where r.company_id = ?\n' +
         '                         and r.done_by = -1\n' +
         '                         and r.is_visible = true\n' +

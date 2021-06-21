@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 router.get('/customer', (req, res) => {
-    const {profile_id} = req.query;
-    const sql = 'select *,log_type+0 as log_type_id from customer_log where profile_id = ?'
-    db.query(sql, [profile_id], (err, result) => {
+    const {profile_id,start_date,end_date} = req.query;
+    const sql = 'select cl.*,log_type+0 as log_type_id,p.name_surname creator_name,c.name_surname customer_name from customer_log cl left join profile p on cl.profile_id = p.id cross join customer c on c.id = cl.customer_id where cl.company_id = ? and (cl.create_date between ? and ?)'
+    db.query(sql, [profile_id,start_date,end_date], (err, result) => {
         if (err) {
             res.json({code: 500, message: err})
             throw err
@@ -22,26 +22,26 @@ router.get('/incomeAsNumber', (req, res) => {
                'total_income', coalesce((select sum(pcd.amount)
                                          from customer_payment cp
                                                   inner join payment_cash_detail pcd
-                                                             on pcd.is_visible = true and
+                                                             on 
                                                                 cp.id = pcd.customer_payment_id and
                                                                 (pcd.paid_date between ? and ?)
                                          where cp.is_partial = 0
                                            and cp.profile_id = ?
-                                           and cp.is_visible = true), 0) +
+                                           ), 0) +
                                coalesce((select sum(ppd.amount)
                                          from customer_payment cp
                                                   inner join payment_partial_detail ppd
-                                                             on ppd.is_paid = true and ppd.is_visible = true and
+                                                             on ppd.is_paid = true and
                                                                 cp.id = ppd.payment_id and
                                                                 (ppd.paid_date between ? and ?)
                                          where cp.is_partial = 1
                                            and cp.profile_id = ?
-                                           and cp.is_visible = true), 0) +
+                                           ), 0) +
                                coalesce((select sum(sl.quantity * sl.price)
                                          from stock_log sl
                                          where (sl.create_date between ? and ?)
                                            and sl.profile_id = ?
-                                           and sl.is_visible = true
+                                           
                                            and sl.log_type = 'Satıldı'), 0)
            ) as profile_log
 `
@@ -67,12 +67,12 @@ router.get('/incomeAsNumber', (req, res) => {
 router.get('/outcomeAsNumber', (req, res) => {
     const {profile_id, start_date, end_date} = req.query;
     const sql = 'select JSON_OBJECT(\n' +
-        '               \'total_outcome\', (coalesce((select sum(e.cost) from expense e where (e.create_date between ? and ?) and e.profile_id = ? and e.is_visible = true),0) +\n' +
+        '               \'total_outcome\', (coalesce((select sum(e.cost) from expense e where (e.create_date between ? and ?) and e.profile_id = ?),0) +\n' +
         '                          coalesce((select sum(sl.quantity * sl.price)\n' +
         '                                    from stock_log sl\n' +
         '                                    where (sl.create_date between ? and ?)\n' +
         '                                         and sl.profile_id = ?\n' +
-        '                                      and sl.is_visible = true\n' +
+        '                                      \n' +
         '                                      and sl.log_type = \'Eklendi\'), 0))\n' +
         '           ) as company_log\n'
 
@@ -106,12 +106,12 @@ router.get('/income', (req, res) => {
         '                                 from customer_payment cp\n' +
         '                                          left join customer c on cp.customer_id = c.id\n' +
         '                                          inner join payment_cash_detail pcd\n' +
-        '                                                     on pcd.is_visible = true and\n' +
+        '                                                     on\n' +
         '                                                        cp.id = pcd.customer_payment_id and\n' +
         '                                                        (pcd.paid_date between ? and ?)\n' +
         '                                 where cp.is_partial = 0\n' +
         '                                   and cp.profile_id = ?\n' +
-        '                                   and cp.is_visible = true),\n' +
+        '                                   ),\n' +
         '               \'partial_payments\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
         '                \'payment_id\', cp.id,\n' +
         '                \'cash_id\', ppd.id,\n' +
@@ -123,12 +123,12 @@ router.get('/income', (req, res) => {
         '                                    from customer_payment cp\n' +
         '                                             left join customer c on cp.customer_id = c.id\n' +
         '                                             inner join payment_partial_detail ppd\n' +
-        '                                                        on ppd.is_paid = true and ppd.is_visible = true and\n' +
+        '                                                        on ppd.is_paid = true and \n' +
         '                                                           cp.id = ppd.payment_id and\n' +
         '                                                           (ppd.paid_date between ? and ?)\n' +
         '                                    where cp.is_partial = 1\n' +
         '                                      and cp.profile_id = ?\n' +
-        '                                      and cp.is_visible = true),\n' +
+        '                                      ),\n' +
         '               \'stocks\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
         '                \'stock_log_id\', sl.stock_id,\n' +
         '                \'stock_log_price\', sl.price,\n' +
@@ -150,7 +150,7 @@ router.get('/income', (req, res) => {
         '                                   left join stock s on sl.stock_type = \'Stok\' and s.stock_id = sl.stock_id\n' +
         '                          where (sl.create_date between ? and ?)\n' +
         '                            and sl.profile_id = ?\n' +
-        '                            and sl.is_visible = true\n' +
+        '                            \n' +
         '                            and sl.log_type = \'Satıldı\')\n' +
         '           ) as company_log'
 
@@ -178,7 +178,7 @@ router.get('/outcome', (req, res) => {
         '                                 from expense e\n' +
         '                                 where (e.create_date between ? and ?)\n' +
         '                                   and e.profile_id = ?\n' +
-        '                                   and e.is_visible = true),\n' +
+        '                                   ),\n' +
         '               \'stocks\', (select JSON_ARRAYAGG(JSON_OBJECT(\n' +
         '                \'stock_log_id\', sl.stock_id,\n' +
         '                \'stock_log_price\', sl.price,\n' +
@@ -200,7 +200,7 @@ router.get('/outcome', (req, res) => {
         '                                   left join stock s on sl.stock_type = \'Stok\' and s.stock_id = sl.stock_id\n' +
         '                          where (sl.create_date between ? and ?)\n' +
         '                            and sl.profile_id = ?\n' +
-        '                            and sl.is_visible = true\n' +
+        '                            \n' +
         '                            and sl.log_type = \'Eklendi\')\n' +
         '           ) as company_log'
 
@@ -220,7 +220,7 @@ router.get('/outcome', (req, res) => {
 
 router.get('/addedStockCount', (req, res) => {
     const {profile_id, start_date, end_date} = req.query;
-    const sql = `select count(id) as count from stock_log where profile_id = ? and is_visible = true and log_type = 'Eklendi' and (create_date between ? and ?)`
+    const sql = `select count(id) as count from stock_log where profile_id = ? and log_type = 'Eklendi' and (create_date between ? and ?)`
 
     db.query(sql, [profile_id, start_date, end_date], (err, result) => {
         if (err) {
@@ -238,7 +238,7 @@ router.get('/addedStockCount', (req, res) => {
 
 router.get('/removedStockCount', (req, res) => {
     const {profile_id, start_date, end_date} = req.query;
-    const sql = `select count(id) as count from stock_log where profile_id = ? and is_visible = true and log_type = 'Satıldı' and (create_date between ? and ?)`
+    const sql = `select count(id) as count from stock_log where profile_id = ? and log_type = 'Satıldı' and (create_date between ? and ?)`
 
     db.query(sql, [profile_id, start_date, end_date], (err, result) => {
         if (err) {
@@ -260,7 +260,6 @@ router.get('/maintenance', (req, res) => {
 from maintenance m
          left join customer c on m.customer_id = c.id
 where m.profile_id = ?
-  and m.is_visible = true
   and (maintenanced_date between ? and ?)`
 
     db.query(sql, [profile_id, start_date, end_date], (err, result) => {
@@ -285,7 +284,6 @@ from job j
          left join profile pd on j.done_by = pd.id
 where (j.done_by = ?
   or j.profile_id = ?)
-  and j.is_visible = true
   and (j.done_date between ? and ?)`
 
     db.query(sql, [profile_id,profile_id, start_date, end_date], (err, result) => {
@@ -310,7 +308,6 @@ from rendezvous r
          left join profile pd on r.done_by = pd.id
 where (r.profile_id = ?
   or r.done_by = ?)
-  and r.is_visible = true
   and (r.date between ? and ?)`
 
     db.query(sql, [profile_id,profile_id, start_date, end_date], (err, result) => {

@@ -51,7 +51,6 @@ router.post('/add', (req, res) => {
 
                         }
                         row = results[0][0];
-                        console.log(row)
                         let company_id = row.company_id;
 
                         sql = 'INSERT into telephone_no (company_id,tel_no) values ?'
@@ -404,16 +403,16 @@ router.get('/log',(req,res) => {
         '                               and cp.is_visible = true),0),\n' +
         '        \'total_income\', coalesce((select sum(cp.total_paid + cp.first_paid)\n' +
         '                          from customer_payment cp\n' +
-        '                          where cp.company_id = ? and cp.is_visible = true),0) + coalesce((select sum(sl.quantity * sl.price)\n' +
+        '                          where cp.company_id = ?),0) + coalesce((select sum(sl.quantity * sl.price)\n' +
         '                                                                               from stock_log sl\n' +
         '                                                                               where sl.company_id = ?\n' +
-        '                                                                                 and sl.is_visible = true\n' +
+        '                                                                                 \n' +
         '                                                                                 and sl.log_type = \'Satıldı\'),0),\n' +
-        '        \'total_outcome\', (coalesce((select sum(e.cost) from expense e where e.company_id = ? and e.is_visible = true),0) +\n' +
+        '        \'total_outcome\', (coalesce((select sum(e.cost) from expense e where e.company_id = ?),0) +\n' +
         '                          coalesce((select sum(sl.quantity * sl.price)\n' +
         '                                    from stock_log sl\n' +
         '                                    where sl.company_id = ?\n' +
-        '                                      and sl.is_visible = true\n' +
+        '                                      \n' +
         '                                      and sl.log_type = \'Eklendi\'), 0))\n' +
         '    )) as company_log\n';
 
@@ -434,7 +433,7 @@ router.get('/log',(req,res) => {
                 res.json({
                     code: 200,
                     message: 'Şirket logları alındı',
-                    data: JSON.parse(results[0].logs)
+                    data: JSON.parse(results[0].company_log)
                 })
             } else {
                 res.json({

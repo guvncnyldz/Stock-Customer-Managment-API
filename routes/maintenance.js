@@ -7,7 +7,6 @@ const router = express.Router();
 router.post('/do', (req, res) => {
     const {customer_device_id, operation, description, maintenance_date, customer_id, maintained_filters, new_filters, old_filters,other_filters, log_profile_id, log_company_id} = req.body
     let sql = "INSERT INTO maintenance(company_id,customer_id,profile_id,operation,description,customer_device_id, maintenance_date, maintenanced_date) VALUES (?,?,?,?,?,?, COALESCE(?, '0000/00/00'), current_timestamp)"
-
     try {
         db.query(sql, [log_company_id,customer_id,log_profile_id, operation, description, customer_device_id, maintenance_date], (err, result) => {
             if (err) {

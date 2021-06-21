@@ -272,7 +272,7 @@ router.post('/add', (req, res) => {
 router.get('/', (req, res) => {
     const {subcategory_id} = req.query;
 
-    let sql = 'select * from expense where is_visible = true and expense_subcategory_id = ?'
+    let sql = 'select expense.*,p.name_surname from expense left join profile p on expense.profile_id = p.id where expense.is_visible = true and expense_subcategory_id = ?'
 
     try {
         db.query(sql, [subcategory_id], (err, results) => {
